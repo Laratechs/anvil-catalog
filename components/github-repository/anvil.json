@@ -1,0 +1,11 @@
+{
+  "labels": {
+    "github_repository": "repository",
+    "github_repository_file": "committing {key}",
+    "github_team_repository": "team access",
+    "github_actions_variable": "CI variable {key}"
+  },
+  "delete_labels": {
+    "github_repository_file": "removing {key}"
+  }
+}

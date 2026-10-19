@@ -1,0 +1,6 @@
+{
+  "labels": {
+    "aws_organizations_account": "AWS account",
+    "aws_ssoadmin_account_assignment": "AWS access"
+  }
+}
