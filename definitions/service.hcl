@@ -1,5 +1,5 @@
-# A service: a GitHub repository created from a template repository, owned by
-# one team, with CI that publishes an image.
+# A service: a GitHub repository created from a template repository, with CI
+# that publishes an image.
 service {
   title = "Service"
 
@@ -25,8 +25,7 @@ service {
     inputs = {
       name         = anvil.name
       org          = anvil.org
-      team         = anvil.team
-      description  = anvil.description != "" ? anvil.description : "${anvil.name} service owned by ${anvil.team}. Created by Anvil."
+      description  = anvil.description != "" ? anvil.description : "${anvil.name} service. Created by Anvil."
       visibility   = settings.visibility
       archived     = anvil.lifecycle == "archived"
       template     = settings.template

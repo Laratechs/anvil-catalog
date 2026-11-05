@@ -1,5 +1,4 @@
-# A GCP project for one Anvil service, with the owning team's Google group
-# granted IAM roles on it.
+# A GCP project for one Anvil service.
 
 terraform {
   required_version = ">= 1.6"
@@ -39,7 +38,6 @@ resource "google_project" "this" {
   labels = {
     managed-by    = "anvil"
     anvil-service = var.service
-    anvil-team    = var.team
   }
 
   lifecycle {
@@ -56,12 +54,4 @@ resource "google_project_service" "this" {
   project            = google_project.this.project_id
   service            = each.value
   disable_on_destroy = false
-}
-
-resource "google_project_iam_member" "team" {
-  for_each = toset(var.roles)
-
-  project = google_project.this.project_id
-  role    = each.value
-  member  = var.team_member
 }

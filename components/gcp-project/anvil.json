@@ -2,7 +2,6 @@
   "labels": {
     "random_string": "GCP project",
     "google_project": "GCP project",
-    "google_project_iam_member": "GCP access",
     "google_project_service": "GCP API {key}"
   }
 }

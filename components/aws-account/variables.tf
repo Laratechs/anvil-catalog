@@ -3,11 +3,6 @@ variable "service" {
   type        = string
 }
 
-variable "team" {
-  description = "Owning GitHub team slug, recorded as a tag."
-  type        = string
-}
-
 variable "email_template" {
   description = "Root email for the new account, with {service} replaced by the service name, so it is unique across AWS."
   type        = string
@@ -22,16 +17,6 @@ variable "parent_id" {
   description = "Organizational unit to place the account in. Empty uses the root."
   type        = string
   default     = ""
-}
-
-variable "group_display_name" {
-  description = "IAM Identity Center group for the owning team."
-  type        = string
-}
-
-variable "permission_set_arns" {
-  description = "Permission sets assigned to the team's group on the account."
-  type        = list(string)
 }
 
 variable "portal_url" {

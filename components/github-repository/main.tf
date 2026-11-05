@@ -1,6 +1,6 @@
 # A GitHub repository for one Anvil service, created from a template
-# repository and baselined per ANV-2000: owning-team write access, CODEOWNERS,
-# and the template's kept-in-sync files.
+# repository, with the template's kept-in-sync files. Services have no owning
+# team: organization members get access from the org's base permission.
 
 terraform {
   required_version = ">= 1.6"
@@ -17,10 +17,6 @@ locals {
   template_name  = split("/", var.template)[1]
 }
 
-data "github_team" "owner" {
-  slug = var.team
-}
-
 resource "github_repository" "this" {
   name        = var.name
   description = var.description
@@ -34,7 +30,7 @@ resource "github_repository" "this" {
   allow_squash_merge     = true
   allow_rebase_merge     = true
 
-  topics = ["anvil-managed", "anvil-team-${var.team}"]
+  topics = ["anvil-managed"]
 
   # The template is copied once, when the repository is created.
   template {
@@ -86,23 +82,6 @@ resource "github_repository_file" "managed" {
   content             = data.github_repository_file.managed[each.key].content
   commit_message      = "Update Anvil-managed ${each.key}"
   overwrite_on_create = true
-}
-
-# CODEOWNERS names the owning team, so it is written per service rather than
-# copied from the template.
-resource "github_repository_file" "codeowners" {
-  repository          = github_repository.this.name
-  branch              = var.default_branch
-  file                = ".github/CODEOWNERS"
-  content             = "# Managed by Anvil. The owning team must approve every change.\n* @${var.org}/${var.team}\n"
-  commit_message      = "Update Anvil-managed .github/CODEOWNERS"
-  overwrite_on_create = true
-}
-
-resource "github_team_repository" "owner" {
-  team_id    = data.github_team.owner.id
-  repository = github_repository.this.name
-  permission = "push"
 }
 
 resource "github_actions_variable" "this" {

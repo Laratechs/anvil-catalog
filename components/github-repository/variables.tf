@@ -4,12 +4,7 @@ variable "name" {
 }
 
 variable "org" {
-  description = "GitHub organization that owns the repository and the team."
-  type        = string
-}
-
-variable "team" {
-  description = "Slug of the owning GitHub team."
+  description = "GitHub organization that owns the repository."
   type        = string
 }
 

@@ -3,6 +3,5 @@ output "project" {
     provider    = "gcp"
     id          = google_project.this.project_id
     console_url = "https://console.cloud.google.com/home/dashboard?project=${google_project.this.project_id}"
-    grants      = [for r in var.roles : "${var.team_member} has ${r}"]
   }
 }
