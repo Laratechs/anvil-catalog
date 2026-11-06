@@ -1,0 +1,10 @@
+{
+  "labels": {
+    "google_artifact_registry_repository": "image repository",
+    "google_artifact_registry_repository_iam_member": "image repository access",
+    "google_service_account": "service account",
+    "google_service_account_iam_member": "service account access",
+    "google_cloud_run_v2_service": "Cloud Run service",
+    "google_cloud_run_v2_service_iam_member": "Cloud Run access"
+  }
+}

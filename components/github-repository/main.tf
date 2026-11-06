@@ -91,3 +91,46 @@ resource "github_actions_variable" "this" {
   variable_name = each.key
   value         = each.value
 }
+
+# A copy of the Actions variables, committed after they are set. Variables
+# alone don't run CI, so a new service, or one given a cloud, would wait
+# for its next merge to publish and deploy. This commit is a push to the
+# default branch: CI runs on it with the new variables, and its SHA lets
+# the CLI follow that run (status ci_commit).
+locals {
+  ci_settings_path = ".github/anvil-ci.env"
+}
+
+resource "github_repository_file" "ci_settings" {
+  # Keyed by path, which progress shows ("committing .github/anvil-ci.env").
+  for_each = length(var.actions_variables) > 0 ? toset([local.ci_settings_path]) : toset([])
+
+  repository = github_repository.this.name
+  branch     = var.default_branch
+  file       = each.key
+  content = join("\n", concat([
+    "# Written by Anvil: the Actions variables it sets on this repository.",
+    "# Anvil commits this file when they change, so CI runs (and deploys) with",
+    "# them. Edits are overwritten.",
+  ], [for k in sort(keys(var.actions_variables)) : "${k}=${var.actions_variables[k]}"], [""]))
+  commit_message      = "Update Anvil's CI settings"
+  overwrite_on_create = true
+
+  # After the variables, so the run this commit starts sees them, and after
+  # the managed files, so it runs the current CI.
+  depends_on = [github_actions_variable.this, github_repository_file.managed]
+}
+
+# The commit that last changed the file. The resource's own commit_sha is
+# only set on create, so after an update it names the previous commit (whose
+# CI run the new one cancels); reading the file back after the change gets
+# the current one.
+data "github_repository_file" "ci_settings" {
+  for_each = github_repository_file.ci_settings
+
+  repository = github_repository.this.name
+  branch     = each.value.branch
+  file       = each.value.file
+
+  depends_on = [github_repository_file.ci_settings]
+}

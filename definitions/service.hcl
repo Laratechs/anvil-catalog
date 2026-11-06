@@ -1,5 +1,5 @@
 # A service: a GitHub repository created from a template repository, with CI
-# that publishes an image.
+# that publishes an image and deploys it to the service's clouds.
 service {
   title = "Service"
 
@@ -40,6 +40,9 @@ service {
   status {
     repository_url = component.repository.repository_url
     image          = lower("${settings.registry}/${anvil.name}")
+    # CI's run on this commit publishes, and deploys to any cloud, with the
+    # variables above; the CLI waits for it.
+    ci_commit = component.repository.ci_commit
   }
 
   lifecycle {
