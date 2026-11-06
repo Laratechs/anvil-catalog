@@ -21,7 +21,7 @@ variable "region" {
 variable "public" {
   description = "Serve requests without authentication: anyone with the URL can call the service."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "workload_identity_provider" {

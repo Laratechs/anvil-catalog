@@ -13,10 +13,16 @@ cloud "gcp" {
     # with: projects/NUMBER/locations/global/workloadIdentityPools/POOL/providers/PROVIDER.
     # It must map attribute.repository = assertion.repository.
     workload_identity_provider = optional(string, "")
-    # Serve every service's URL without authentication, so it opens in a
-    # browser. Off by default: making services public is a deliberate
-    # choice for the whole project.
-    public = optional(bool, false)
+    # Whether services' URLs answer without authentication (so they open in
+    # a browser) unless a service chooses otherwise with its public option.
+    public = optional(bool, true)
+  }
+
+  # What a requester chooses for their own service
+  # ("anvil cloud create -option public=false ...").
+  options {
+    # Serve the URL without authentication. Unset follows settings.public.
+    public = optional(bool)
   }
 
   enabled_when = settings.project_id != "" && settings.workload_identity_provider != ""
@@ -33,7 +39,7 @@ cloud "gcp" {
       project_id                 = settings.project_id
       region                     = settings.region
       workload_identity_provider = settings.workload_identity_provider
-      public                     = settings.public
+      public                     = options.public != null ? options.public : settings.public
     }
   }
 
@@ -53,7 +59,7 @@ cloud "gcp" {
     kind        = "cloud_run_service"
     id          = component.run.service.id
     url         = component.run.service.url
-    public      = settings.public
+    public      = options.public != null ? options.public : settings.public
     console_url = component.run.service.console_url
   }
 
