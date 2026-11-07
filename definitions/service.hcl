@@ -51,6 +51,6 @@ service {
     archive_targets = ["repository.github_repository.this"]
     # A force delete forgets everything else (it goes with the repository)
     # and destroys the repository.
-    keep_on_delete = ["repository.github_repository.this"]
+    destroy_on_delete = ["repository.github_repository.this"]
   }
 }

@@ -66,6 +66,6 @@ cloud "gcp" {
   lifecycle {
     # A force delete destroys the service's whole slot: the Cloud Run
     # service, its images and its service accounts.
-    keep_on_delete = ["run"]
+    destroy_on_delete = ["run"]
   }
 }
