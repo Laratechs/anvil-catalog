@@ -2,8 +2,15 @@
 cloud "aws" {
   title = "AWS account"
 
-  settings {
+  # Where AWS accounts land: an AWS binding carries the region the provider
+  # works in ("anvil binding create -provider=aws -set region=... NAME").
+  # A cloud's provider config may only use anvil and binding. The rest of
+  # the settings move into the binding with Laratechs/anvil#20.
+  binding {
     region = optional(string, "us-east-1")
+  }
+
+  settings {
     # Root email for each account; {service} is replaced with the service
     # name, and the result must be unique across AWS.
     email_template = optional(string, "")
@@ -17,7 +24,7 @@ cloud "aws" {
   provider "aws" {
     source = "hashicorp/aws"
     config = {
-      region = settings.region
+      region = binding.region
     }
   }
 
