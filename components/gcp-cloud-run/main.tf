@@ -63,6 +63,15 @@ resource "google_cloud_run_v2_service" "this" {
   # Anvil's force delete, with its typed confirmation, is the protection.
   deletion_protection = false
 
+  # Service-level scaling: Cloud Run's default, written out. The API
+  # returns this block for every service, and the provider doesn't treat it
+  # as computed, so leaving it out plans its removal on every re-apply.
+  # The other attributes stay unset: the API reports them as 0 and "", which
+  # the provider reads as unset, so they match.
+  scaling {
+    min_instance_count = 0
+  }
+
   template {
     service_account = google_service_account.runtime.email
     containers {
