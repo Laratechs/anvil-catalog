@@ -1,5 +1,5 @@
-# Anvil's default catalog: what a service and each cloud are made of.
-# Built into the anvil binary and used when ANVIL_CATALOG is not set.
+# The Laratechs Anvil catalog: what a service and each cloud are made of.
+# Anvil servers run a tagged revision of this repository (README.md).
 catalog {
   contract = 1
 }
