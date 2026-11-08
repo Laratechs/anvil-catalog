@@ -18,9 +18,9 @@ the content anvil built in last.
 | `tests/` | Content tests: rendered services applied with mock providers |
 
 The contract between Anvil and this repository (what a definition may
-declare, what Anvil passes it and what it reads back) is
-[docs/catalog-contract.md](https://github.com/Laratechs/anvil/blob/main/docs/catalog-contract.md)
-in the anvil repository.
+declare, what Anvil passes it and what it reads back) is Anvil's catalog
+contract, version 1 (`contract = 1` in `catalog.hcl`), documented with
+Anvil.
 
 ## How Anvil uses it
 
@@ -32,8 +32,8 @@ catalog {
 }
 ```
 
-Anvil fetches it as its GitHub App, which needs read access to this
-repository. On every apply Anvil generates a root module with one module
+The repository is public, so servers fetch it with no credentials. On
+every apply Anvil generates a root module with one module
 block per component of the service's definitions, and records the catalog
 revision on the service. A new tag reaches existing services the next time
 each is applied.
@@ -45,8 +45,9 @@ cloud's `binding { }` block. How they are deployed is **settings**
 
 ## Releasing
 
-Tag `main` as `vMAJOR.MINOR.PATCH` once CI passes, then point servers at the
-new tag. Note changes that alter what an existing service's Terraform plans
+Tag `main` as `vMAJOR.MINOR.PATCH` once CI and `tests/run.sh` pass, then
+point servers at the new tag (and anvil's CI, which tests the tag servers
+run). Note changes that alter what an existing service's Terraform plans
 in the tag's message. Module addresses are state: renaming a component or a
 resource in a module moves or replaces it unless the module adds a `moved`
 block. Anvil's upgrade scenario (`TestUpgrade` in its e2e harness) runs a
@@ -58,14 +59,17 @@ ANVIL_E2E_CATALOG=$PWD ANVIL_E2E=1 go test -C ../anvil ./e2e/ -v -run Upgrade -t
 
 ## Testing
 
-CI runs `terraform fmt -check` and `tests/run.sh`, which renders a service
-for each case with `anvil catalog render` and runs `terraform init`,
+This repository's CI runs `terraform fmt -check` and `terraform validate`
+on every component.
+
+`tests/run.sh` tests what the definitions build: it renders a service for
+each case with `anvil catalog render` and runs `terraform init`,
 `validate` and `test` on it, with the case's assertions in
 `tests/cases/<case>.tftest.hcl`. The tests use mock providers, so they need
 no credentials and create nothing, but they download the real providers.
-`tests/bindings.json` holds the bindings the cases render with.
-
-Locally, with Terraform and an anvil checkout beside this one:
+`tests/bindings.json` holds the bindings the cases render with. It needs
+anvil, which is private, so it runs where anvil is: run it before tagging,
+with Terraform and an anvil checkout beside this one,
 
 ```
 go install -C ../anvil ./cmd/anvil
@@ -73,13 +77,10 @@ tests/run.sh          # every case
 tests/run.sh gcp      # one case
 ```
 
-CI builds anvil with the `setup-anvil` action from the anvil repository,
-pinned to a commit. Move the pin forward when the catalog needs a newer
-anvil, and set `requires_anvil` in `catalog.hcl` once that anvil is
-released. The anvil repository is private, so its **Settings → Actions →
-General → Access** must allow repositories in the organization; no token
-is involved.
+and anvil's CI runs it against the tag servers run on every change to
+anvil, and against `main` nightly. Set `requires_anvil` in `catalog.hcl`
+when a change needs a newer anvil release.
 
-The e2e harness in the anvil repository tests this catalog against the
-real binary, Terraform and GitHub; it runs the `anvil-catalog` checkout
-beside anvil by default.
+Anvil's e2e harness also tests this catalog against the real binary,
+Terraform and GitHub; it runs the `anvil-catalog` checkout beside anvil by
+default.

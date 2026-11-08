@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# What this repository can check on its own. The rendered cases in tests/
+# need anvil, which is private: run tests/run.sh with an anvil checkout
+# before tagging (README.md). Anvil's CI runs them against the tag servers
+# run, and nightly against main.
+jobs:
+  check:
+    name: fmt and validate
+    runs-on: ubuntu-latest
+    env:
+      TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform-plugins
+      # The work dirs have no lock file, so Terraform may only use the
+      # cache without recording checksums.
+      TF_PLUGIN_CACHE_MAY_BREAK_DEPENDENCY_LOCK_FILE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+      - uses: actions/cache@v4
+        with:
+          path: .terraform-plugins
+          key: terraform-plugins-${{ hashFiles('components/**/*.tf') }}
+          restore-keys: terraform-plugins-
+      - name: Validate every component
+        run: |
+          mkdir -p "$TF_PLUGIN_CACHE_DIR"
+          for dir in components/*/; do
+            echo "--- $dir"
+            terraform -chdir="$dir" init -backend=false -input=false -no-color >/dev/null
+            terraform -chdir="$dir" validate -no-color
+          done
