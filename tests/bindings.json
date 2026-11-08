@@ -1,0 +1,15 @@
+{
+  "aws": {
+    "name": "aws-test",
+    "values": {
+      "email_template": "aws+{service}@laratechs.com"
+    }
+  },
+  "gcp": {
+    "name": "gcp-test",
+    "values": {
+      "project_id": "shared",
+      "workload_identity_provider": "projects/123/locations/global/workloadIdentityPools/github/providers/github"
+    }
+  }
+}
