@@ -2,24 +2,19 @@
 cloud "aws" {
   title = "AWS account"
 
-  # Where AWS accounts land: an AWS binding carries the region the provider
-  # works in ("anvil binding create -provider=aws -set region=... NAME").
-  # A cloud's provider config may only use anvil and binding. The rest of
-  # the settings move into the binding with Laratechs/anvil#20.
+  # Where AWS accounts land: an aws binding names the organization's
+  # account email and organizational unit
+  # ("anvil binding create -provider=aws -set email_template=... NAME").
+  # Everything the cloud needs says where, so it has no settings.
   binding {
-    region = optional(string, "us-east-1")
-  }
-
-  settings {
     # Root email for each account; {service} is replaced with the service
     # name, and the result must be unique across AWS.
-    email_template = optional(string, "")
+    email_template = string
     # Organizational unit for new accounts. Empty uses the root.
-    parent_id = optional(string, "")
+    parent_id  = optional(string, "")
     portal_url = optional(string, "https://console.aws.amazon.com/")
+    region     = optional(string, "us-east-1")
   }
-
-  enabled_when = settings.email_template != ""
 
   provider "aws" {
     source = "hashicorp/aws"
@@ -31,10 +26,10 @@ cloud "aws" {
   component "account" {
     module = "../components/aws-account"
     inputs = {
-      service             = anvil.name
-      email_template      = settings.email_template
-      parent_id           = settings.parent_id
-      portal_url          = settings.portal_url
+      service        = anvil.name
+      email_template = binding.email_template
+      parent_id      = binding.parent_id
+      portal_url     = binding.portal_url
     }
   }
 
