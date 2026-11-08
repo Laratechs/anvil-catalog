@@ -75,5 +75,8 @@ cloud "gcp" {
     # A force delete destroys the service's whole slot: the Cloud Run
     # service, its images and its service accounts.
     destroy_on_delete = ["run"]
+    # The image repository holds the images CI pushed; archive and force
+    # delete destroy it with them.
+    stateful = ["run.google_artifact_registry_repository.this"]
   }
 }
