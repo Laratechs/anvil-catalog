@@ -1,5 +1,10 @@
-# An AWS account for one service in AWS Organizations.
-cloud "aws" {
+# An AWS account for one service in AWS Organizations: a cloud of the
+# service's own, which its team deploys into.
+#
+# AWS is off for now. The definition stays, and can't be requested while
+# no aws binding exists, so don't create one.
+deployment "aws" {
+  type  = "self-managed"
   title = "AWS account"
 
   # Where AWS accounts land: an aws binding names the organization's
