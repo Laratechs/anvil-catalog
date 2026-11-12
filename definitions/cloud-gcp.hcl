@@ -2,7 +2,10 @@
 # sets up (docs/gcp.md). Anvil creates the slot (the Cloud Run service, an
 # image repository and two service accounts); the service's CI pushes
 # images and deploys.
-cloud "gcp" {
+# It is the managed deployment: it runs on the platform, the shared
+# infrastructure the platform team runs.
+deployment "gcp" {
+  type  = "platform-managed"
   title = "Cloud Run service"
 
   # Where Cloud Run services land: a gcp binding names the shared project

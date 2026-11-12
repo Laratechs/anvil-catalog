@@ -12,14 +12,14 @@ the content anvil built in last.
 | --- | --- |
 | `catalog.hcl` | The catalog contract version, and optionally the anvil and Terraform versions this catalog needs |
 | `definitions/service.hcl` | A service: a GitHub repository created from a template repository, with CI that publishes an image and deploys it to the service's clouds |
-| `definitions/cloud-gcp.hcl` | `cloud "gcp"`: a Cloud Run service in a shared project, with its own image repository and service accounts |
-| `definitions/cloud-aws.hcl` | `cloud "aws"`: an AWS account in AWS Organizations |
+| `definitions/cloud-gcp.hcl` | `deployment "gcp"`: the platform-managed deployment, a Cloud Run service in a shared project, with its own image repository and service accounts |
+| `definitions/cloud-aws.hcl` | `deployment "aws"`: a self-managed deployment, an AWS account in AWS Organizations (off for now: it can't be requested while no aws binding exists) |
 | `components/*` | The Terraform modules the definitions use, each with an `anvil.json` of progress labels |
 | `tests/` | Content tests: rendered services applied with mock providers |
 
 The contract between Anvil and this repository (what a definition may
 declare, what Anvil passes it and what it reads back) is Anvil's catalog
-contract, version 1 (`contract = 1` in `catalog.hcl`), documented with
+contract, version 2 (`contract = 2` in `catalog.hcl`), documented with
 Anvil.
 
 ## How Anvil uses it

@@ -32,7 +32,7 @@ service {
       template_ref = settings.template_ref
       actions_variables = merge(
         { ANVIL_IMAGE = lower("${settings.registry}/${anvil.name}") },
-        children.cloud[*].exports...
+        children.deployment[*].exports...
       )
     }
   }
