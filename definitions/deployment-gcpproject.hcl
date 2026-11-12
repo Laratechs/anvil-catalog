@@ -1,7 +1,7 @@
 # A GCP project for one service: a cloud of the service's own. Anvil
-# creates it empty, in the folder the platform team chose, and hands it
-# over. What runs inside it, and how the service is deployed there, is the
-# service team's.
+# creates it in the folder the platform team chose, sets up what the
+# service's CI needs to publish images there, and hands it over. What runs
+# inside it, and how the service is deployed there, is the service team's.
 #
 # It is the self-managed deployment ("anvil service deploy
 # -type=self-managed NAME"). A service has this or the platform-managed
@@ -23,6 +23,12 @@ deployment "gcpproject" {
     # Project IDs are <project_prefix>-<service>: 1 to 4 lowercase letters
     # and digits of your own, as IDs are unique across Google Cloud.
     project_prefix = string
+    # Region of each project's image repository.
+    region = optional(string, "us-central1")
+    # Workload Identity Federation provider GitHub Actions authenticates
+    # with, as the gcp binding's: one pool serves every project. It must
+    # map attribute.repository = assertion.repository.
+    workload_identity_provider = string
     # An IAM member made owner of each project, such as
     # group:engineering@example.com. Empty leaves access to what the
     # folder grants.
@@ -37,12 +43,26 @@ deployment "gcpproject" {
   component "project" {
     module = "../components/gcp-project"
     inputs = {
-      service         = anvil.name
-      project_prefix  = binding.project_prefix
-      folder_id       = binding.folder_id
-      billing_account = binding.billing_account
-      owner           = binding.owner
+      service                    = anvil.name
+      repository                 = "${anvil.org}/${anvil.name}"
+      project_prefix             = binding.project_prefix
+      folder_id                  = binding.folder_id
+      billing_account            = binding.billing_account
+      region                     = binding.region
+      workload_identity_provider = binding.workload_identity_provider
+      owner                      = binding.owner
     }
+  }
+
+  # Repository variables for CI: enough to authenticate and publish the
+  # service's image to its project. There is no ANVIL_GCP_SERVICE, so the
+  # template's deploy job doesn't run: delivery is the team's to build.
+  exports = {
+    ANVIL_GCP_PROJECT                    = component.project.ci.project
+    ANVIL_GCP_REGION                     = component.project.ci.region
+    ANVIL_GCP_IMAGE                      = component.project.ci.image
+    ANVIL_GCP_SERVICE_ACCOUNT            = component.project.ci.service_account
+    ANVIL_GCP_WORKLOAD_IDENTITY_PROVIDER = component.project.ci.workload_identity_provider
   }
 
   status {
@@ -52,7 +72,11 @@ deployment "gcpproject" {
     console_url = component.project.project.console_url
   }
 
-  # No destroy_on_delete: Anvil never deletes a team's project, so a
-  # service with one can't be archived or force deleted until the platform
-  # team decommissions the project.
+  lifecycle {
+    # A force delete deletes the project, and with it everything in it,
+    # including what the team built. Anvil names it and asks first.
+    destroy_on_delete = ["project"]
+    # The whole project holds the team's data.
+    stateful = ["project.google_project.this"]
+  }
 }

@@ -1,6 +1,11 @@
 {
   "labels": {
     "google_project": "GCP project",
-    "google_project_iam_member": "project owner"
+    "google_project_iam_member": "project owner",
+    "google_project_service": "enabling {key}",
+    "google_artifact_registry_repository": "image repository",
+    "google_artifact_registry_repository_iam_member": "image repository access",
+    "google_service_account": "CI service account",
+    "google_service_account_iam_member": "CI service account access"
   }
 }
