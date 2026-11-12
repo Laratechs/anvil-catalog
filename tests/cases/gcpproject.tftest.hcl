@@ -5,6 +5,12 @@ mock_provider "google" {
   mock_resource "google_project" {
     defaults = { number = "123456789012" }
   }
+  mock_resource "google_service_account" {
+    defaults = {
+      name  = "projects/lt-orders/serviceAccounts/ci-orders@lt-orders.iam.gserviceaccount.com"
+      email = "ci-orders@lt-orders.iam.gserviceaccount.com"
+    }
+  }
 }
 
 mock_provider "github" {
@@ -26,8 +32,15 @@ run "apply" {
     error_message = "children: ${jsonencode(local.children_cloud)}"
   }
   assert {
-    # The project starts empty and exports nothing to CI.
-    condition     = local.children_cloud[0].exports == {}
+    # CI can authenticate and publish the image. Nothing names a service
+    # to deploy to, so the template's deploy job stays off.
+    condition = local.children_cloud[0].exports == {
+      ANVIL_GCP_PROJECT                    = "lt-orders"
+      ANVIL_GCP_REGION                     = "us-central1"
+      ANVIL_GCP_IMAGE                      = "us-central1-docker.pkg.dev/lt-orders/orders/orders"
+      ANVIL_GCP_SERVICE_ACCOUNT            = "ci-orders@lt-orders.iam.gserviceaccount.com"
+      ANVIL_GCP_WORKLOAD_IDENTITY_PROVIDER = "projects/123/locations/global/workloadIdentityPools/github/providers/github"
+    }
     error_message = "exports: ${jsonencode(local.children_cloud[0].exports)}"
   }
   assert {

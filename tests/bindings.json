@@ -18,7 +18,8 @@
       "folder_id": "folders/123456789012",
       "billing_account": "000000-AAAAAA-000000",
       "project_prefix": "lt",
-      "owner": "group:engineering@example.com"
+      "owner": "group:engineering@example.com",
+      "workload_identity_provider": "projects/123/locations/global/workloadIdentityPools/github/providers/github"
     }
   }
 }

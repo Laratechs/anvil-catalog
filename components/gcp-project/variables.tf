@@ -29,3 +29,19 @@ variable "owner" {
   type        = string
   default     = ""
 }
+
+variable "repository" {
+  description = "The service's GitHub repository, as owner/name. Only its workflows can use the CI identity."
+  type        = string
+}
+
+variable "region" {
+  description = "Region of the service's image repository."
+  type        = string
+  default     = "us-central1"
+}
+
+variable "workload_identity_provider" {
+  description = "Workload Identity Federation provider GitHub Actions authenticates with: projects/NUMBER/locations/global/workloadIdentityPools/POOL/providers/PROVIDER. It may live in another project, and must map attribute.repository = assertion.repository."
+  type        = string
+}
