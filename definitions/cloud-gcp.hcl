@@ -28,7 +28,7 @@ deployment "gcp" {
   }
 
   # What a requester chooses for their own service
-  # ("anvil cloud create -option public=false ...").
+  # ("anvil service deploy -option public=false NAME").
   options {
     # Serve the URL without authentication. Unset follows settings.public.
     public = optional(bool)

@@ -2,7 +2,8 @@
 
 What [Anvil](https://github.com/Laratechs/anvil) builds. Anvil is the engine:
 it accepts requests, tracks services and their clouds, and runs Terraform.
-This repository says what a **service** and each **cloud** are made of.
+This repository says what a **service** and each **deployment** (where a
+service runs) are made of.
 
 It was Anvil's built-in catalog (`catalog/` in the anvil repository) until
 the split in Laratechs/anvil#11, and keeps that history. Tag `v0.1.0` is
@@ -14,6 +15,7 @@ the content anvil built in last.
 | `definitions/service.hcl` | A service: a GitHub repository created from a template repository, with CI that publishes an image and deploys it to the service's clouds |
 | `definitions/cloud-gcp.hcl` | `deployment "gcp"`: the platform-managed deployment, a Cloud Run service in a shared project, with its own image repository and service accounts |
 | `definitions/cloud-aws.hcl` | `deployment "aws"`: a self-managed deployment, an AWS account in AWS Organizations (off for now: it can't be requested while no aws binding exists) |
+| `definitions/deployment-gcpproject.hcl` | `deployment "gcpproject"`: the self-managed deployment, an empty GCP project of the service's own, created in the folder its binding names |
 | `components/*` | The Terraform modules the definitions use, each with an `anvil.json` of progress labels |
 | `tests/` | Content tests: rendered services applied with mock providers |
 

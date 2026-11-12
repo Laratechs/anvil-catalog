@@ -54,6 +54,7 @@ check() {
 check service orders ""
 check gcp orders gcp
 check aws orders aws
+check gcpproject orders gcpproject
 check aws-gcp orders aws,gcp
 check short-name aaa aws,gcp
 check private private gcp -settings "$tests/private.json"

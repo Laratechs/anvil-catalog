@@ -1,0 +1,6 @@
+{
+  "labels": {
+    "google_project": "GCP project",
+    "google_project_iam_member": "project owner"
+  }
+}
