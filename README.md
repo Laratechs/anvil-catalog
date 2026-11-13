@@ -24,6 +24,49 @@ declare, what Anvil passes it and what it reads back) is Anvil's catalog
 contract, version 2 (`contract = 2` in `catalog.hcl`), documented with
 Anvil.
 
+## Service templates
+
+A new service's repository is copied from the template repository that
+the service's `template` setting names. Each template is a GitHub template
+repository with the same contract, so every deployment works with any of
+them:
+
+- a server that listens on `$PORT` (default `8080`), answers `/healthz`,
+  stops cleanly on SIGTERM and logs JSON to stdout;
+- a `Dockerfile` that takes the `SERVICE_NAME` build argument and runs as
+  a non-root user;
+- `.github/anvil-managed.txt`, listing the files Anvil keeps in sync (the
+  CI workflow and the lint configuration);
+- a CI workflow whose `build` job builds, tests, lints and scans the code
+  in the template's language and builds the image once, and whose
+  `publish`, `push` and `deploy` jobs are the same in every template.
+
+| Template | Stack | Checks in CI |
+| --- | --- | --- |
+| [`Laratechs/anvil-template-go`](https://github.com/Laratechs/anvil-template-go) (default) | Go `net/http` | `go test -race`, `golangci-lint` with `gosec`, `govulncheck` |
+| [`Laratechs/anvil-template-python`](https://github.com/Laratechs/anvil-template-python) | Python 3.14, FastAPI, uv | `pytest`, `ruff` with its bandit rules, `pip-audit` |
+| [`Laratechs/anvil-template-typescript`](https://github.com/Laratechs/anvil-template-typescript) | Node.js 26, TypeScript, Fastify | `node --test`, `tsc`, `eslint` with security rules, `prettier`, `npm audit` |
+| [`Laratechs/anvil-template-rust`](https://github.com/Laratechs/anvil-template-rust) | Rust, axum on tokio | `cargo test`, `clippy -D warnings`, `rustfmt`, `cargo deny` |
+
+An operator chooses the template for a server's new services in its
+configuration, pinning the ref that managed files are read from:
+
+```hcl
+settings "service" {
+  template     = "Laratechs/anvil-template-python"
+  template_ref = "main"
+}
+```
+
+**Known limitation: one template per server.** Contract 2 gives the
+service no requester options, so a requester can't choose a template for
+one service. And changing the setting on a server that already has
+services is unsafe: the repository keeps the template it was created
+from, but its managed files are read from the template the setting names
+now, so a Go service's next apply would commit Python's `ci.yml` over its
+own. Until Anvil lets a service record its template, change `template`
+only on a server with no services.
+
 ## How Anvil uses it
 
 Every Anvil server names its catalog, pinned to a tag:
