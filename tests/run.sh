@@ -52,6 +52,10 @@ check() {
 }
 
 check service orders ""
+# A service from each template the template option offers.
+for template in go python rust typescript; do
+  check "template-$template" orders "" -option "template=$template"
+done
 check gcp orders gcp
 check aws orders aws
 check gcpproject orders gcpproject
