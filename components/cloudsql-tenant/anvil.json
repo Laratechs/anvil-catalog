@@ -1,0 +1,9 @@
+{
+  "labels": {
+    "google_sql_user": "database login",
+    "google_project_iam_member": "database access",
+    "postgresql_grant_role": "database owner",
+    "postgresql_database": "database",
+    "postgresql_grant": "database privileges"
+  }
+}

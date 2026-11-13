@@ -58,6 +58,8 @@ check gcpproject orders gcpproject
 check aws-gcp orders aws,gcp
 check short-name aaa aws,gcp
 check private private gcp -settings "$tests/private.json"
+check postgres orders gcp -addon postgres -instance-outputs "$tests/instance-outputs.json"
+check postgres-instance postgres-gcp-test-ab12 gcp -instance postgres
 
 if [[ -n "$only" && ! -f "$tests/cases/$only.tftest.hcl" ]]; then
   echo "no case $only" >&2
