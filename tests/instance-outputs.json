@@ -1,0 +1,10 @@
+{
+  "postgres": {
+    "project_id": "shared",
+    "region": "us-central1",
+    "name": "postgres-gcp-test-ab12",
+    "connection_name": "shared:us-central1:postgres-gcp-test-ab12",
+    "admin_user": "pgadmin-0123456789ab@shared.iam",
+    "admin_service_account": "pgadmin-0123456789ab@shared.iam.gserviceaccount.com"
+  }
+}

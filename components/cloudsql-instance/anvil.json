@@ -1,0 +1,9 @@
+{
+  "labels": {
+    "google_sql_database_instance": "Cloud SQL instance",
+    "google_service_account": "instance admin identity",
+    "google_sql_user": "instance admin login",
+    "google_project_iam_member": "instance admin access",
+    "google_service_account_iam_member": "Anvil's access to the instance admin"
+  }
+}

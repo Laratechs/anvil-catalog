@@ -16,12 +16,13 @@ the content anvil built in last.
 | `definitions/cloud-gcp.hcl` | `deployment "gcp"`: the platform-managed deployment, a Cloud Run service in a shared project, with its own image repository and service accounts |
 | `definitions/cloud-aws.hcl` | `deployment "aws"`: a self-managed deployment, an AWS account in AWS Organizations (off for now: it can't be requested while no aws binding exists) |
 | `definitions/deployment-gcpproject.hcl` | `deployment "gcpproject"`: the self-managed deployment, an empty GCP project of the service's own, created in the folder its binding names |
+| `definitions/addon-postgres.hcl` | `addon "postgres"`: a PostgreSQL database for a service on the gcp deployment. A Cloud SQL instance per gcp binding is shared, and each service gets a database owned by its runtime identity, with IAM database authentication and no password |
 | `components/*` | The Terraform modules the definitions use, each with an `anvil.json` of progress labels |
 | `tests/` | Content tests: rendered services applied with mock providers |
 
 The contract between Anvil and this repository (what a definition may
 declare, what Anvil passes it and what it reads back) is Anvil's catalog
-contract, version 2 (`contract = 2` in `catalog.hcl`), documented with
+contract, version 3 (`contract = 3` in `catalog.hcl`), documented with
 Anvil.
 
 ## How Anvil uses it
