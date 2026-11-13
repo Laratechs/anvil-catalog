@@ -6,12 +6,22 @@ service {
   settings {
     # Container registry namespace CI publishes to.
     registry = optional(string, "ghcr.io/laratechs")
-    # Template repository new services are created from, as owner/name.
-    template = optional(string, "Laratechs/anvil-template-go")
-    # Ref of the template that kept-in-sync files are read from.
+    # Ref of the templates that kept-in-sync files are read from.
     template_ref = optional(string, "main")
     visibility   = optional(string, "private")
   }
+
+  options {
+    # The template the service's repository is created from (README.md,
+    # "Service templates"). Its kept-in-sync files are read from the same
+    # template for as long as the service exists, so it is fixed: a
+    # service keeps the one it was created with, the default included.
+    template = optional(string, "go")
+  }
+  choices = {
+    template = ["go", "python", "rust", "typescript"]
+  }
+  immutable = ["template"]
 
   provider "github" {
     source = "integrations/github"
@@ -28,7 +38,12 @@ service {
       description  = anvil.description != "" ? anvil.description : "${anvil.name} service. Created by Anvil."
       visibility   = settings.visibility
       archived     = anvil.lifecycle == "archived"
-      template     = settings.template
+      template = {
+        go         = "Laratechs/anvil-template-go"
+        python     = "Laratechs/anvil-template-python"
+        rust       = "Laratechs/anvil-template-rust"
+        typescript = "Laratechs/anvil-template-typescript"
+      }[options.template]
       template_ref = settings.template_ref
       actions_variables = merge(
         { ANVIL_IMAGE = lower("${settings.registry}/${anvil.name}") },

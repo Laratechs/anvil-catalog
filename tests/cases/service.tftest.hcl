@@ -22,6 +22,11 @@ run "apply" {
     error_message = "ci_commit: ${output.service.ci_commit}"
   }
   assert {
+    # Without -option template, the default: Go.
+    condition     = module.service_repository.template == "Laratechs/anvil-template-go"
+    error_message = "template: ${module.service_repository.template}"
+  }
+  assert {
     condition     = length(local.children_cloud) == 0
     error_message = "children: ${jsonencode(local.children_cloud)}"
   }
