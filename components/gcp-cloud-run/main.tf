@@ -86,10 +86,36 @@ resource "google_cloud_run_v2_service" "this" {
       client,
       client_version,
       template[0].containers[0].image,
+      # Environment variables and secret references: the service's
+      # repository commits them and CI deploys them.
+      template[0].containers[0].env,
       template[0].revision,
       template[0].labels,
       template[0].annotations,
     ]
+  }
+}
+
+# Secret Manager names secrets by project number in resource names, which
+# IAM conditions match against.
+data "google_project" "this" {
+  project_id = var.project_id
+}
+
+# The service's runtime identity reads the secrets named <service>-*, and
+# no others. Teams create the secrets and write their values themselves
+# (gcloud), so they don't exist when Anvil applies this: a conditional
+# project-level grant covers them as they appear. The values never pass
+# through Anvil or Terraform.
+resource "google_project_iam_member" "runtime_reads_secrets" {
+  project = var.project_id
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.runtime.email}"
+
+  condition {
+    title       = "${var.service} secrets"
+    description = "Secrets named ${var.service}-*. Managed by Anvil."
+    expression  = "resource.name.startsWith(\"projects/${data.google_project.this.number}/secrets/${var.service}-\")"
   }
 }
 

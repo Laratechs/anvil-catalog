@@ -50,6 +50,16 @@ run "apply" {
     error_message = "gcp exports: ${jsonencode(local.cloud_gcp_exports)}"
   }
   assert {
+    # The runtime identity reads the service's own secrets (<service>-*),
+    # and only those, as accessor.
+    condition = alltrue([
+      module.cloud_gcp_run.runtime_secrets.role == "roles/secretmanager.secretAccessor",
+      endswith(module.cloud_gcp_run.runtime_secrets.expression, "/secrets/orders-\")"),
+      startswith(module.cloud_gcp_run.runtime_secrets.expression, "resource.name.startsWith(\"projects/"),
+    ])
+    error_message = "runtime secrets: ${jsonencode(module.cloud_gcp_run.runtime_secrets)}"
+  }
+  assert {
     condition     = output.cloud_gcp.public == true
     error_message = "gcp public: ${jsonencode(output.cloud_gcp)}"
   }

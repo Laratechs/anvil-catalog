@@ -18,3 +18,11 @@ output "ci" {
     workload_identity_provider = var.workload_identity_provider
   }
 }
+
+output "runtime_secrets" {
+  description = "What the runtime identity may read in Secret Manager: the role and the condition limiting it to the service's own secrets."
+  value = {
+    role       = google_project_iam_member.runtime_reads_secrets.role
+    expression = one(google_project_iam_member.runtime_reads_secrets.condition).expression
+  }
+}
