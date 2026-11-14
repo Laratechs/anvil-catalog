@@ -3,7 +3,7 @@
 # team: organization members get access from the org's base permission.
 
 terraform {
-  required_version = ">= 1.6"
+  required_version = ">= 1.7"
   required_providers {
     github = {
       source  = "integrations/github"
@@ -49,9 +49,12 @@ resource "github_repository" "this" {
 }
 
 # Kept-in-sync files: the template lists paths the platform enforces after
-# creation (CI, lint configuration) in .github/anvil-managed.txt. They are
+# creation (lint configuration) in .github/anvil-managed.txt. They are
 # read from the template at template_ref and committed when they differ, so
 # a fix released in the template reaches every service.
+#
+# The CI workflow is not one of them. It is copied from the template once,
+# when the service is created, and then belongs to the team.
 data "github_repository_file" "managed_list" {
   repository = var.template
   file       = ".github/anvil-managed.txt"
@@ -65,7 +68,7 @@ locals {
   ])
 }
 
-data "github_repository_file" "managed" {
+data "github_repository_file" "synced" {
   for_each = local.managed_paths
 
   repository = var.template
@@ -73,15 +76,62 @@ data "github_repository_file" "managed" {
   branch     = var.template_ref
 }
 
-resource "github_repository_file" "managed" {
+resource "github_repository_file" "synced" {
   for_each = local.managed_paths
 
   repository          = github_repository.this.name
   branch              = var.default_branch
   file                = each.key
-  content             = data.github_repository_file.managed[each.key].content
+  content             = data.github_repository_file.synced[each.key].content
   commit_message      = "Update Anvil-managed ${each.key}"
   overwrite_on_create = true
+}
+
+# This resource was called "managed" while the CI workflow was on the list.
+# A service created then has github_repository_file.managed[".github/workflows/ci.yml"]
+# in its state, and with the workflow off the list Terraform would plan to
+# destroy it, deleting the team's file. So the lint configuration of each
+# template moves to "synced", and whatever is left in "managed" (the
+# workflow) is forgotten without being destroyed: every file stays where it
+# is, and the plan has nothing to add, change or destroy. A moved block
+# whose path a service doesn't have is ignored. Drop these blocks once no
+# service state holds the old resource.
+moved {
+  from = github_repository_file.managed[".golangci.yml"]
+  to   = github_repository_file.synced[".golangci.yml"]
+}
+
+moved {
+  from = github_repository_file.managed["ruff.toml"]
+  to   = github_repository_file.synced["ruff.toml"]
+}
+
+moved {
+  from = github_repository_file.managed["rustfmt.toml"]
+  to   = github_repository_file.synced["rustfmt.toml"]
+}
+
+moved {
+  from = github_repository_file.managed["deny.toml"]
+  to   = github_repository_file.synced["deny.toml"]
+}
+
+moved {
+  from = github_repository_file.managed["eslint.config.js"]
+  to   = github_repository_file.synced["eslint.config.js"]
+}
+
+moved {
+  from = github_repository_file.managed[".prettierrc.json"]
+  to   = github_repository_file.synced[".prettierrc.json"]
+}
+
+removed {
+  from = github_repository_file.managed
+
+  lifecycle {
+    destroy = false
+  }
 }
 
 resource "github_actions_variable" "this" {
@@ -118,7 +168,7 @@ resource "github_repository_file" "ci_settings" {
 
   # After the variables, so the run this commit starts sees them, and after
   # the managed files, so it runs the current CI.
-  depends_on = [github_actions_variable.this, github_repository_file.managed]
+  depends_on = [github_actions_variable.this, github_repository_file.synced]
 }
 
 # The commit that last changed the file. The resource's own commit_sha is
