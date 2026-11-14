@@ -57,10 +57,12 @@ every deployment works with any of them:
 - a `Dockerfile` that takes the `SERVICE_NAME` build argument and runs as
   a non-root user;
 - `.github/anvil-managed.txt`, listing the files Anvil keeps in sync (the
-  CI workflow and the lint configuration);
+  lint configuration, not the CI workflow);
 - a CI workflow whose `build` job builds, tests, lints and scans the code
   in the template's language and builds the image once, and whose
-  `publish`, `push` and `deploy` jobs are the same in every template.
+  `publish`, `push` and `deploy` jobs are the same in every template. Anvil
+  copies it into a service once, when the service is created; after that
+  it is the team's and Anvil never rewrites it.
 
 The operator's `template_ref` setting names the ref every template's
 kept-in-sync files are read from (default `main`).
