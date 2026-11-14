@@ -90,10 +90,42 @@ resource "github_repository_file" "synced" {
 # This resource was called "managed" while the CI workflow was on the list.
 # A service created then has github_repository_file.managed[".github/workflows/ci.yml"]
 # in its state, and with the workflow off the list Terraform would plan to
-# destroy it, deleting the team's file. Forgetting the old resource without
-# destroying it leaves every file where it is; the lint configuration is
-# adopted again under "synced" (overwrite_on_create). Drop this block once
-# no service state holds the old resource.
+# destroy it, deleting the team's file. So the lint configuration of each
+# template moves to "synced", and whatever is left in "managed" (the
+# workflow) is forgotten without being destroyed: every file stays where it
+# is, and the plan has nothing to add, change or destroy. A moved block
+# whose path a service doesn't have is ignored. Drop these blocks once no
+# service state holds the old resource.
+moved {
+  from = github_repository_file.managed[".golangci.yml"]
+  to   = github_repository_file.synced[".golangci.yml"]
+}
+
+moved {
+  from = github_repository_file.managed["ruff.toml"]
+  to   = github_repository_file.synced["ruff.toml"]
+}
+
+moved {
+  from = github_repository_file.managed["rustfmt.toml"]
+  to   = github_repository_file.synced["rustfmt.toml"]
+}
+
+moved {
+  from = github_repository_file.managed["deny.toml"]
+  to   = github_repository_file.synced["deny.toml"]
+}
+
+moved {
+  from = github_repository_file.managed["eslint.config.js"]
+  to   = github_repository_file.synced["eslint.config.js"]
+}
+
+moved {
+  from = github_repository_file.managed[".prettierrc.json"]
+  to   = github_repository_file.synced[".prettierrc.json"]
+}
+
 removed {
   from = github_repository_file.managed
 
